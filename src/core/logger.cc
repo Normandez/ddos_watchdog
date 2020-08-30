@@ -29,7 +29,7 @@
 
 void Logger::log(const char* msg)
 {
-
+    printf("LOG: %s\n", msg);
 }
 
 void Logger::log_error(const char* msg)

@@ -23,7 +23,7 @@
 //------------------------------------------------------------------------------------
 // main.cc author Oleksandr Serhiienko <sergienko.9711@gmail.com>
 
-#include "watchdog.h"
+#include "core/watchdog.h"
 
 int main(int argc, char* argv[])
 {
