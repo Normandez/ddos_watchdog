@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 {
     Watchdog dog;
 
-    if ( !dog.init() )
+    if ( !dog.init(argc, argv) )
         return 1;
 
     return dog.exec();

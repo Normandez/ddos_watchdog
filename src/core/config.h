@@ -26,13 +26,27 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <string>
+
 struct Config
 {
+public:
+    Config() = default;
+    Config(const Config&) = delete;
+    Config& operator=(const Config&) = delete;
+
+    static Config* get_instance()
+    {
+        static Config conf;
+        return &conf;
+    }
+
 public:
     bool load_config(const char* file_name);
 
 public:
-
+    std::string int_iface;
+    std::string ext_iface;
 
 };
 

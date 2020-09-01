@@ -26,23 +26,14 @@
 #ifndef WATCHDOG_H
 #define WATCHDOG_H
 
-struct Config;
-
 class Watchdog
 {
 public:
     Watchdog() = default;
-    ~Watchdog();
 
-    bool init();
+    bool init(int argc, char* argv[]);
 
     int exec();
-
-    const Config* get_conf() const
-    { return conf; }
-
-private:
-    Config* conf = nullptr;
 
 };
 
