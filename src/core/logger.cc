@@ -25,15 +25,57 @@
 
 #include "logger.h"
 
+#include <cstdarg>
 #include <cstdio>
+#include <string>
 
-void Logger::log(const char* msg)
+#define STD_BUF_SIZE 1024
+
+static void printout(FILE* out, const char* fmt, va_list ap)
 {
-    printf("LOG: %s\n", msg);
+    char buf[STD_BUF_SIZE];
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    fputs(buf, out);
 }
 
-void Logger::log_error(const char* msg)
+void Logger::msg(const char* fmt, ...)
 {
-    
+    va_list ap;
+    va_start(ap, fmt);
+
+    std::string l_fmt = fmt;
+    l_fmt += "\n";
+
+    printout(stdout, l_fmt.c_str(), ap);
+
+    va_end(ap);
+}
+
+void Logger::log(const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+
+    std::string l_fmt = "LOG: ";
+    l_fmt += fmt;
+    l_fmt += "\n";
+
+    printout(stdout, l_fmt.c_str(), ap);
+
+    va_end(ap);
+}
+
+void Logger::error(const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+
+    std::string l_fmt = "ERROR: ";
+    l_fmt += fmt;
+    l_fmt += "\n";
+
+    printout(stderr, l_fmt.c_str(), ap);
+
+    va_end(ap);
 }
 

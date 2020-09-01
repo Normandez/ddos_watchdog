@@ -29,8 +29,9 @@
 class Logger
 {
 public:
-    static void log(const char*);
-    static void log_error(const char*);
+    static void msg(const char* fmt, ...) __attribute__ ((format (printf, 1, 2)));
+    static void log(const char* fmt, ...) __attribute__ ((format (printf, 1, 2)));
+    static void error(const char* fmt, ...) __attribute__ ((format (printf, 1, 2)));
 
 };
 

@@ -39,7 +39,7 @@ bool Config::load_config(const char* file_name)
 
     if ( !file.is_open() )
     {
-        // Log error
+        Logger::error("can't open config file: %s", file_name);
         return false;
     }
 
@@ -53,7 +53,7 @@ bool Config::load_config(const char* file_name)
     }
 
     file.close();
-    // Log config loaded
+    Logger::log("config file loaded: %s", file_name);
 
     return true;
 }
