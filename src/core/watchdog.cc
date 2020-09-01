@@ -25,20 +25,38 @@
 
 #include "watchdog.h"
 
-#include <cassert>
+#include <cstring>
 
+#include "config.h"
 #include "logger.h"
 
-Watchdog::~Watchdog()
+bool Watchdog::init(int argc, char* argv[])
 {
-    delete conf;
-}
+    bool parse_err = false;
+    bool conf_loaded = false;
 
-bool Watchdog::init()
-{
-    Logger::log("It works!");
-    assert(false);
-    return true;
+    for ( int opt = 1, par_val = 0; opt < argc; ++opt )
+    {
+        if ( !strcmp(argv[opt], "-c") and ( opt + 1 ) < argc )
+        {
+            conf_loaded = Config::get_instance()->load_config(argv[opt + 1]);
+            ++par_val;
+
+            continue;
+        }
+        else if ( !par_val )
+        {
+            // Log invalid opt
+            parse_err = true;
+        }
+
+        --par_val;
+    }
+
+    if ( !conf_loaded ){}
+        // Log config not loaded
+
+    return !parse_err and conf_loaded;
 }
 
 int Watchdog::exec()
