@@ -28,8 +28,10 @@
 
 class Logger
 {
+public:
     static void log(const char*);
     static void log_error(const char*);
+
 };
 
 #endif // LOGGER_H

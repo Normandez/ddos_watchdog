@@ -25,6 +25,8 @@
 
 #include "watchdog.h"
 
+#include <cassert>
+
 #include "logger.h"
 
 Watchdog::~Watchdog()
@@ -32,13 +34,14 @@ Watchdog::~Watchdog()
     delete conf;
 }
 
-bool init()
+bool Watchdog::init()
 {
-
+    Logger::log("It works!");
+    assert(false);
     return true;
 }
 
-int exec()
+int Watchdog::exec()
 {
 
     return 0;
