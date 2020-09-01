@@ -46,15 +46,15 @@ bool Watchdog::init(int argc, char* argv[])
         }
         else if ( !par_val )
         {
-            // Log invalid opt
+            Logger::error("invalid CLI option provided: %s", argv[opt]);
             parse_err = true;
         }
 
         --par_val;
     }
 
-    if ( !conf_loaded ){}
-        // Log config not loaded
+    if ( !conf_loaded )
+        Logger::error("config file not loaded");
 
     return !parse_err and conf_loaded;
 }
