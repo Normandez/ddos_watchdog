@@ -30,6 +30,9 @@
 #include "config.h"
 #include "logger.h"
 
+// FIXIT: refactor this into separate help component
+#define CLI_HELP "USAGE: watchdog -c <config_file.env> [--help]"
+
 bool Watchdog::init(int argc, char* argv[])
 {
     bool parse_err = false;
@@ -44,6 +47,11 @@ bool Watchdog::init(int argc, char* argv[])
 
             continue;
         }
+        else if ( !strcmp(argv[opt], "--help") )
+        {
+            Logger::msg(CLI_HELP);
+            exit(0);
+        }
         else if ( !par_val )
         {
             Logger::error("invalid CLI option provided: %s", argv[opt]);
@@ -53,7 +61,10 @@ bool Watchdog::init(int argc, char* argv[])
         --par_val;
     }
 
-    if ( !conf_loaded )
+    if ( parse_err )
+        Logger::msg("run with '--help' to see available arguments");
+
+    if ( !conf_loaded and !parse_err )
         Logger::error("config file not loaded");
 
     return !parse_err and conf_loaded;
