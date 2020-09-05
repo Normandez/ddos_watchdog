@@ -1,8 +1,16 @@
 set ( CORE_SOURCES
     config.cc
     config.h
+    inline_set.cc
+    inline_set.h
     logger.cc
     logger.h
+    sniffer.cc
+    sniffer.h
+    thread_context.cc
+    thread_context.h
+    thread_control.cc
+    thread_control.h
     watchdog.cc
     watchdog.h
 )

@@ -26,14 +26,21 @@
 #ifndef WATCHDOG_H
 #define WATCHDOG_H
 
+class ThreadControl;
+
 class Watchdog
 {
 public:
     Watchdog() = default;
+    ~Watchdog();
 
     bool init(int argc, char* argv[]);
+    bool init_live_bridges();
 
     int exec();
+
+private:
+    ThreadControl* control = nullptr;
 
 };
 

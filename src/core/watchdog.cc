@@ -26,9 +26,19 @@
 #include "watchdog.h"
 
 #include <cstring>
+#include <thread>
 
 #include "config.h"
 #include "logger.h"
+#include "thread_control.h"
+
+// FIXIT: make this dynamic
+#define NUM_OF_BRIDGES 1
+
+Watchdog::~Watchdog()
+{
+    delete control;
+}
 
 // FIXIT: refactor this into separate help component
 #define CLI_HELP "USAGE: watchdog -c <config_file.env> [--help]"
@@ -70,9 +80,33 @@ bool Watchdog::init(int argc, char* argv[])
     return !parse_err and conf_loaded;
 }
 
+bool Watchdog::init_live_bridges()
+{
+    control = new ThreadControl(NUM_OF_BRIDGES);
+
+    if ( !control->open_bridges() )
+        return false;
+
+    Logger::log("live bridges initialized");
+    return true;
+}
+
 int Watchdog::exec()
 {
+    control->start_live();
+    Logger::msg("Watchdog is online\nYour network is under defense now");
+    while ( true )
+    {
+        if ( !control->is_ok() )
+        {
+            control->stop_all();
+            return 5;
+        }
 
+        // Iteration timeout 1 sec
+        std::chrono::seconds sec(1);
+        std::this_thread::sleep_for(sec);
+    }
     return 0;
 }
 
