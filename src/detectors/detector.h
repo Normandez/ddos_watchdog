@@ -21,49 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //------------------------------------------------------------------------------------
-// inline_set.h author Oleksandr Serhiienko <sergienko.9711@gmail.com>
+// detector.h author Oleksandr Serhiienko <sergienko.9711@gmail.com>
 
-#ifndef INLINE_SET_H
-#define INLINE_SET_H
+#ifndef DETECTOR_H
+#define DETECTOR_H
 
-#include <thread>
+#include <sys/types.h>
 
-class Sniffer;
-
-class InlineSet
+class Detector
 {
 public:
-    InlineSet(const char* ext_iface, const char* int_iface, size_t bridge_id);
-    virtual ~InlineSet();
+    Detector(const char* n) : name(n) { }
+    virtual ~Detector() = default;
 
-    bool open();
-    virtual void live() = 0;
+    virtual bool analyze(const u_char* pkt, const unsigned int pkt_len) = 0;
 
-protected:
-    Sniffer* ext_sniffer = nullptr;
-    Sniffer* int_sniffer = nullptr;
-    size_t id;
-
-};
-
-class LiveBridge
-{
-public:
-    LiveBridge(const char* ext_iface, const char* int_iface, int bridge_id);
-    ~LiveBridge();
-
-    bool open();
-    void live();
+    const char* get_name() const
+    { return name; }
 
 private:
-    InlineSet* ext_to_int = nullptr;
-    InlineSet* int_to_ext = nullptr;
-    size_t id;
-
-    std::thread* etoi = nullptr;
-    std::thread* itoe = nullptr;
+    const char* name;
 
 };
 
-#endif // INLINE_SET_H
+#endif // DETECTOR_H
 

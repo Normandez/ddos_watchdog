@@ -25,6 +25,7 @@
 
 #include "sniffer.h"
 
+#include "detector_manager.h"
 #include "logger.h"
 #include "thread_context.h"
 
@@ -83,9 +84,10 @@ void Sniffer::sniff()
 
 void Sniffer::dispatch(const struct pcap_pkthdr* frame_hdr, const u_char* frame)
 {
-    unsigned int frame_len = frame_hdr->len;
+    const unsigned int frame_len = frame_hdr->len;
     
-    dst->accept_pkt(frame, frame_len);  
+    if ( DetectorManager::execute(frame, frame_len) )
+        dst->accept_pkt(frame, frame_len);
 }
 
 void Sniffer::accept_pkt(const u_char* frame, unsigned frame_len)
