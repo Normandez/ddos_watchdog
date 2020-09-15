@@ -21,70 +21,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //------------------------------------------------------------------------------------
-// thread_control.cc author Oleksandr Serhiienko <sergienko.9711@gmail.com>
+// thread_context.cc author Oleksandr Serhiienko <sergienko.9711@gmail.com>
 
-#include "thread_control.h"
-
-#include "config.h"
-#include "inline_set.h"
 #include "thread_context.h"
 
-ThreadControl::ThreadControl(size_t num_of_bridges)
-{
-    bridges.reserve(num_of_bridges);
+std::vector<SlotPair> ThreadContext::state_slots;
 
-    Config* conf = Config::get_instance();
-    while ( count_bridges != num_of_bridges )
+void ThreadContext::init_slots(const size_t num)
+{ 
+    state_slots.reserve(num);
+    for ( size_t count = 0; count < num; ++count )
     {
-        bridges.push_back(new LiveBridge(conf->ext_iface.c_str(), conf->int_iface.c_str(),
-            count_bridges));
-
-        count_bridges++;
+        SlotPair pair;
+        pair.first = std::make_unique<std::mutex>();
+        pair.second = TS_NOT_STARTED;
+        state_slots.push_back(std::move(pair));
     }
-
-    ThreadContext::init_slots(num_of_bridges);
 }
 
-ThreadControl::~ThreadControl()
+void ThreadContext::set_state(const size_t index, const ThreadState state)
 {
-    for ( auto& bridge : bridges )
-        delete bridge;
-}
+    SlotPair& slot = state_slots[index];
 
-bool ThreadControl::open_bridges()
-{
-    for ( auto& bridge : bridges )
-    {
-        if ( !bridge->open() )
-            return false;
-    }
-
-    return true;
-}
-
-void ThreadControl::start_live()
-{
-    for ( auto& bridge : bridges )
-        bridge->live();
-}
-
-bool ThreadControl::is_ok() const
-{
-    for ( size_t index = 0; index < count_bridges; ++index )
-    {
-        if ( ThreadContext::get_state(index) == TS_TERMINATED )
-            return false;
-    }
-
-    return true;
-}
-
-void ThreadControl::stop_all() const
-{
-    for ( size_t index = 0; index < count_bridges; ++index )
-        ThreadContext::set_state(index, TS_STOPPED);
-
-    std::chrono::milliseconds ms(500);
-    std::this_thread::sleep_for(ms);
+    slot.first->lock();
+    slot.second = state;
+    slot.first->unlock();
 }
 

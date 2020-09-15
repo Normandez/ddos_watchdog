@@ -21,32 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //------------------------------------------------------------------------------------
-// thread_control.h author Oleksandr Serhiienko <sergienko.9711@gmail.com>
+// thread_context.h author Oleksandr Serhiienko <sergienko.9711@gmail.com>
 
-#ifndef THREAD_CONTROL_H
-#define THREAD_CONTROL_H
+#ifndef THREAD_CONTEXT_H
+#define THREAD_CONTEXT_H
 
 #include <vector>
+#include <memory>
+#include <mutex>
 
-class LiveBridge;
+enum ThreadState
+{
+    TS_NOT_STARTED = 0,
+    TS_TERMINATED,
+    TS_STOPPED,
+    TS_RUNNING
+};
 
-class ThreadControl
+using SlotPair = std::pair<std::unique_ptr<std::mutex>, ThreadState>;
+
+class ThreadContext
 {
 public:
-    ThreadControl(size_t num_of_bridges);
-    ~ThreadControl();
+    static void init_slots(const size_t num);
 
-    bool open_bridges();
-    void start_live();
+    static ThreadState get_state(const size_t index)
+    { return state_slots[index].second; }
 
-    bool is_ok() const;
-    void stop_all() const;
+    static void set_state(const size_t index, const ThreadState state);
 
 private:
-    std::vector<LiveBridge*> bridges;
-    size_t count_bridges = 0;
+    static std::vector<SlotPair> state_slots;
 
 };
 
-#endif // THREAD_CONTROL_H
+#endif // THREAD_CONTEXT_H
 

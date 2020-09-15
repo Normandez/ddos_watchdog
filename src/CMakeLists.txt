@@ -10,6 +10,7 @@ add_executable( watchdog
 
 target_link_libraries( watchdog
     ${EXTERNAL_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 install (TARGETS watchdog

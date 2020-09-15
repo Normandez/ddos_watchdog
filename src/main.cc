@@ -32,6 +32,9 @@ int main(int argc, char* argv[])
     if ( !dog.init(argc, argv) )
         return 1;
 
+    if ( !dog.init_live_bridges() )
+        return 2;
+
     return dog.exec();
 }
 
