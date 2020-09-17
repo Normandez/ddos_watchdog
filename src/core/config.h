@@ -47,6 +47,7 @@ public:
 public:
     std::string int_iface;
     std::string ext_iface;
+    std::string detectors;
 
 };
 

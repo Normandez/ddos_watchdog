@@ -1,0 +1,31 @@
+# arp
+d ( stack="eth:arp" )
+a ( shw="00:50:56:e6:3e:ec", thw="00:00:00:00:00:00", sip="2.2.2.1", tip="2.2.2.9", ipt=2048, op=1  )
+b ( shw="ca:00:2b:7e:00:08", thw="00:50:56:e6:3e:ec", ipt=2048, op=2, sip="2.2.2.9", tip="2.2.2.1" )
+
+# icmp
+d ( stack="eth:ip4:icmp4" )
+a ( type=8, code=0, id=1 )
+b ( type=0, code=0, id=2 )
+a ( type=8, code=0, id=3 )
+b ( type=0, code=0, id=4 )
+
+# tcp
+d ( stack="eth:ip4:tcp" )
+c ( ip4:a="10.10.10.1", tcp:a=100, ip4:b="10.10.10.5", tcp:b=130 )
+a ( syn )
+b ( syn, ack )
+a ( ack )
+a ( ack, data="packet 1" )
+a ( ack, data="packet 2" )
+a ( fin, ack )
+b ( fin, ack )
+
+# udp
+d ( stack="eth:ip4:udp" )
+c ( ip4:a="10.1.1.1", ip4:b="10.1.1.2", udp:a=100, udp:b=200 )
+a ( pay="packet 1" )
+b ( pay="resp packet 1" )
+a ( pay="packet 2" )
+b ( pay="resp packet 2" )
+

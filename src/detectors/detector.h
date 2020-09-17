@@ -28,13 +28,16 @@
 
 #include <sys/types.h>
 
+#include "core/net_defines.h"
+
 class Detector
 {
 public:
     Detector(const char* n) : name(n) { }
     virtual ~Detector() = default;
 
-    virtual bool analyze(const u_char* pkt, const unsigned int pkt_len) = 0;
+    virtual bool analyze(const u_char* pkt, const unsigned int pkt_len,
+        const unsigned long long pkt_num, const PktDirection dir, const size_t bridge_id) = 0;
 
     const char* get_name() const
     { return name; }

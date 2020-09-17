@@ -26,6 +26,7 @@
 #ifndef INLINE_SET_H
 #define INLINE_SET_H
 
+#include <atomic>
 #include <thread>
 
 class Sniffer;
@@ -33,7 +34,9 @@ class Sniffer;
 class InlineSet
 {
 public:
-    InlineSet(const char* ext_iface, const char* int_iface, size_t bridge_id);
+    InlineSet(const char* ext_iface, const char* int_iface, size_t bridge_id,
+        std::atomic_ullong& pkt_counter);
+
     virtual ~InlineSet();
 
     bool open();
@@ -59,6 +62,7 @@ private:
     InlineSet* ext_to_int = nullptr;
     InlineSet* int_to_ext = nullptr;
     size_t id;
+    std::atomic_ullong pkt_counter;
 
     std::thread* etoi = nullptr;
     std::thread* itoe = nullptr;

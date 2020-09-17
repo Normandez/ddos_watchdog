@@ -21,29 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //------------------------------------------------------------------------------------
-// detector_manager.h author Oleksandr Serhiienko <sergienko.9711@gmail.com>
+// net_defines.h author Oleksandr Serhiienko <sergienko.9711@gmail.com>
 
-#ifndef DETECTOR_MANAGER_H
-#define DETECTOR_MANAGER_H
+#ifndef NET_DEFINES_H
+#define NET_DEFINES_H
 
-#include <string>
-#include <sys/types.h>
+// 1 octet == 4 bytes
+#define BYTES_IN_OCTET 4
 
-#include "net_defines.h"
+// 8 bytes == 64 bits
+#define UDP_HDRLEN 8
 
-class DetectorManager
+enum PktDirection
 {
-public:
-    static void init_pipeline();
-    static void cleanup_pipeline();
-
-    static bool execute(const u_char* pkt, const unsigned int pkt_len,
-        const unsigned long long pkt_num, const PktDirection dir, const size_t bridge_id);
-
-    static size_t get_pipeline_len();
-    static std::string get_pipeline_names();
-
+    EXT_TO_INT = 0,
+    INT_TO_EXT
 };
 
-#endif // DETECTOR_MANAGER_H
+#endif // NET_DEFINES_H
 

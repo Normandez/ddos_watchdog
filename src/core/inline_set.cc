@@ -32,11 +32,12 @@
 
 // Inline sets
 
-InlineSet::InlineSet(const char* ext_iface, const char* int_iface, size_t bridge_id)
+InlineSet::InlineSet(const char* ext_iface, const char* int_iface, size_t bridge_id,
+    std::atomic_ullong& pkt_counter)
     : id(bridge_id)
 {
-    ext_sniffer = new Sniffer(ext_iface, SnifferType::ST_EXT, bridge_id);
-    int_sniffer = new Sniffer(int_iface, SnifferType::ST_INT, bridge_id);
+    ext_sniffer = new Sniffer(ext_iface, SnifferType::ST_EXT, bridge_id, pkt_counter);
+    int_sniffer = new Sniffer(int_iface, SnifferType::ST_INT, bridge_id, pkt_counter);
 
     ext_sniffer->set_dst(int_sniffer);
     int_sniffer->set_dst(ext_sniffer);
@@ -59,8 +60,9 @@ bool InlineSet::open()
 class ExtToInt : public InlineSet
 {
 public:
-    ExtToInt(const char* ext_iface, const char* int_iface, size_t bridge_id)
-        : InlineSet(ext_iface, int_iface, bridge_id)
+    ExtToInt(const char* ext_iface, const char* int_iface, size_t bridge_id,
+        std::atomic_ullong& pkt_counter)
+        : InlineSet(ext_iface, int_iface, bridge_id, pkt_counter)
     { }
     ~ExtToInt() { }
 
@@ -81,8 +83,9 @@ void ExtToInt::live()
 class IntToExt : public InlineSet
 {
 public:
-    IntToExt(const char* ext_iface, const char* int_iface, size_t bridge_id)
-        : InlineSet(ext_iface, int_iface, bridge_id)
+    IntToExt(const char* ext_iface, const char* int_iface, size_t bridge_id,
+        std::atomic_ullong& pkt_counter)
+        : InlineSet(ext_iface, int_iface, bridge_id, pkt_counter)
     { }
     ~IntToExt() { }
 
@@ -100,8 +103,8 @@ void IntToExt::live()
 LiveBridge::LiveBridge(const char* ext_iface, const char* int_iface, int bridge_id)
     : id(bridge_id)
 {
-    ext_to_int = new ExtToInt(ext_iface, int_iface, bridge_id);
-    int_to_ext = new IntToExt(ext_iface, int_iface, bridge_id);
+    ext_to_int = new ExtToInt(ext_iface, int_iface, bridge_id, pkt_counter);
+    int_to_ext = new IntToExt(ext_iface, int_iface, bridge_id, pkt_counter);
 }
 
 LiveBridge::~LiveBridge()
