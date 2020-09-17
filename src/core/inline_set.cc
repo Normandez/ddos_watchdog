@@ -25,6 +25,7 @@
 
 #include "inline_set.h"
 
+#include "detector_manager.h"
 #include "logger.h"
 #include "sniffer.h"
 #include "thread_context.h"
@@ -32,6 +33,7 @@
 // Inline sets
 
 InlineSet::InlineSet(const char* ext_iface, const char* int_iface, size_t bridge_id)
+    : id(bridge_id)
 {
     ext_sniffer = new Sniffer(ext_iface, SnifferType::ST_EXT, bridge_id);
     int_sniffer = new Sniffer(int_iface, SnifferType::ST_INT, bridge_id);
@@ -68,7 +70,12 @@ public:
 
 void ExtToInt::live()
 {
+    DetectorManager::init_pipeline();
+    Logger::msg("Detectors initialized: bridge #%zu(ext->int): count %zu:%s", id,
+        DetectorManager::get_pipeline_len(), DetectorManager::get_pipeline_names().c_str());
+
     ext_sniffer->sniff();
+    DetectorManager::cleanup_pipeline();
 }
 
 class IntToExt : public InlineSet

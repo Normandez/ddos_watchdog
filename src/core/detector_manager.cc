@@ -21,49 +21,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //------------------------------------------------------------------------------------
-// inline_set.h author Oleksandr Serhiienko <sergienko.9711@gmail.com>
+// detector_manager.cc author Oleksandr Serhiienko <sergienko.9711@gmail.com>
 
-#ifndef INLINE_SET_H
-#define INLINE_SET_H
+#include "detector_manager.h"
 
-#include <thread>
+#include <list>
 
-class Sniffer;
+#include "detectors/detector.h"
 
-class InlineSet
+thread_local std::list<Detector*> s_detectors;
+
+void DetectorManager::init_pipeline()
 {
-public:
-    InlineSet(const char* ext_iface, const char* int_iface, size_t bridge_id);
-    virtual ~InlineSet();
 
-    bool open();
-    virtual void live() = 0;
+}
 
-protected:
-    Sniffer* ext_sniffer = nullptr;
-    Sniffer* int_sniffer = nullptr;
-    size_t id;
-
-};
-
-class LiveBridge
+void DetectorManager::cleanup_pipeline()
 {
-public:
-    LiveBridge(const char* ext_iface, const char* int_iface, int bridge_id);
-    ~LiveBridge();
 
-    bool open();
-    void live();
+}
 
-private:
-    InlineSet* ext_to_int = nullptr;
-    InlineSet* int_to_ext = nullptr;
-    size_t id;
+bool DetectorManager::execute(const u_char* pkt, const unsigned int pkt_len)
+{
+    for ( auto& detector : s_detectors )
+    {
+        if ( !detector->analyze(pkt, pkt_len) )
+            return false;
+    }
 
-    std::thread* etoi = nullptr;
-    std::thread* itoe = nullptr;
+    return true;
+}
 
-};
+size_t DetectorManager::get_pipeline_len()
+{ return s_detectors.size(); }
 
-#endif // INLINE_SET_H
+std::string DetectorManager::get_pipeline_names()
+{
+    std::string list_names = " ";
+    for ( auto& detector : s_detectors )
+        list_names.append(detector->get_name());
+
+    return list_names;
+}
 

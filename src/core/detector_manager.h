@@ -21,49 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //------------------------------------------------------------------------------------
-// inline_set.h author Oleksandr Serhiienko <sergienko.9711@gmail.com>
+// detector_manager.h author Oleksandr Serhiienko <sergienko.9711@gmail.com>
 
-#ifndef INLINE_SET_H
-#define INLINE_SET_H
+#ifndef DETECTOR_MANAGER_H
+#define DETECTOR_MANAGER_H
 
-#include <thread>
+#include <string>
+#include <sys/types.h>
 
-class Sniffer;
-
-class InlineSet
+class DetectorManager
 {
 public:
-    InlineSet(const char* ext_iface, const char* int_iface, size_t bridge_id);
-    virtual ~InlineSet();
+    static void init_pipeline();
+    static void cleanup_pipeline();
 
-    bool open();
-    virtual void live() = 0;
+    static bool execute(const u_char* pkt, const unsigned int pkt_len);
 
-protected:
-    Sniffer* ext_sniffer = nullptr;
-    Sniffer* int_sniffer = nullptr;
-    size_t id;
+    static size_t get_pipeline_len();
+    static std::string get_pipeline_names();
 
 };
 
-class LiveBridge
-{
-public:
-    LiveBridge(const char* ext_iface, const char* int_iface, int bridge_id);
-    ~LiveBridge();
-
-    bool open();
-    void live();
-
-private:
-    InlineSet* ext_to_int = nullptr;
-    InlineSet* int_to_ext = nullptr;
-    size_t id;
-
-    std::thread* etoi = nullptr;
-    std::thread* itoe = nullptr;
-
-};
-
-#endif // INLINE_SET_H
+#endif // DETECTOR_MANAGER_H
 

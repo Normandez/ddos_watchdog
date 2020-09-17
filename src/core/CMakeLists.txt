@@ -1,6 +1,8 @@
 set ( CORE_SOURCES
     config.cc
     config.h
+    detector_manager.cc
+    detector_manager.h
     inline_set.cc
     inline_set.h
     logger.cc
