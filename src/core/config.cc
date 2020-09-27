@@ -31,6 +31,7 @@
 
 static const std::string int_iface_conf_key = "INT_IFACE=";
 static const std::string ext_iface_conf_key = "EXT_IFACE=";
+static const std::string detectors_key = "DETECTORS=";
 
 bool Config::load_config(const char* file_name)
 {
@@ -50,6 +51,8 @@ bool Config::load_config(const char* file_name)
             int_iface = buf.substr(int_iface_conf_key.size());
         else if ( buf.find(ext_iface_conf_key) != std::string::npos )
             ext_iface = buf.substr(ext_iface_conf_key.size());
+        else if ( buf.find(detectors_key) != std::string::npos )
+            detectors = buf.substr(detectors_key.size());
     }
 
     file.close();

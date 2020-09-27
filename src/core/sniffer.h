@@ -26,6 +26,7 @@
 #ifndef SNIFFER_H
 #define SNIFFER_H
 
+#include <atomic>
 #include <pcap/pcap.h>
 
 enum SnifferType
@@ -37,7 +38,9 @@ enum SnifferType
 class Sniffer
 {
 public:
-    Sniffer(const char* iface_name, SnifferType type, size_t bridge_id);
+    Sniffer(const char* iface_name, SnifferType type, size_t bridge_id,
+        std::atomic_ullong& pkt_counter_);
+
     ~Sniffer();
 
     void set_dst(Sniffer* s)
@@ -54,6 +57,7 @@ private:
     const char* iface;
     SnifferType tp;
     size_t id;
+    std::atomic_ullong& pkt_counter;
 
     pcap_t* handle = nullptr;
     Sniffer* dst = nullptr;

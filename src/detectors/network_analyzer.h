@@ -21,29 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //------------------------------------------------------------------------------------
-// detector_manager.h author Oleksandr Serhiienko <sergienko.9711@gmail.com>
+// network_analyzer.h author Oleksandr Serhiienko <sergienko.9711@gmail.com>
 
-#ifndef DETECTOR_MANAGER_H
-#define DETECTOR_MANAGER_H
+#ifndef NETWORK_ANALYZER_H
+#define NETWORK_ANALYZER_H
 
-#include <string>
-#include <sys/types.h>
+#include "detector.h"
 
-#include "net_defines.h"
+#define network_analyzer_name "network_analyzer"
 
-class DetectorManager
+class NetworkAnalyzer : public Detector
 {
 public:
-    static void init_pipeline();
-    static void cleanup_pipeline();
+    NetworkAnalyzer() : Detector(network_analyzer_name) { }
+    ~NetworkAnalyzer() = default;
 
-    static bool execute(const u_char* pkt, const unsigned int pkt_len,
-        const unsigned long long pkt_num, const PktDirection dir, const size_t bridge_id);
-
-    static size_t get_pipeline_len();
-    static std::string get_pipeline_names();
+    bool analyze(const u_char* pkt, const unsigned int pkt_len,
+        const unsigned long long pkt_num, const PktDirection dir, const size_t bridge_id) override;
 
 };
 
-#endif // DETECTOR_MANAGER_H
+#endif // NETWORK_ANALYZER_H
 

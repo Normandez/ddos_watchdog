@@ -7,6 +7,7 @@ set ( CORE_SOURCES
     inline_set.h
     logger.cc
     logger.h
+    net_defines.h
     sniffer.cc
     sniffer.h
     thread_context.cc

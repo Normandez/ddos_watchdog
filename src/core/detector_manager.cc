@@ -28,24 +28,33 @@
 #include <list>
 
 #include "detectors/detector.h"
+#include "detectors/network_analyzer.h"
+
+#include "config.h"
 
 thread_local std::list<Detector*> s_detectors;
 
 void DetectorManager::init_pipeline()
 {
+    Config* conf = Config::get_instance();
+
+    if ( conf->detectors.find(network_analyzer_name) != std::string::npos )
+        s_detectors.push_back(new NetworkAnalyzer);
 
 }
 
 void DetectorManager::cleanup_pipeline()
 {
-
+    for ( auto detector : s_detectors )
+        delete detector;
 }
 
-bool DetectorManager::execute(const u_char* pkt, const unsigned int pkt_len)
+bool DetectorManager::execute(const u_char* pkt, const unsigned int pkt_len,
+    const unsigned long long pkt_num, const PktDirection dir, const size_t bridge_id)
 {
     for ( auto& detector : s_detectors )
     {
-        if ( !detector->analyze(pkt, pkt_len) )
+        if ( !detector->analyze(pkt, pkt_len, pkt_num, dir, bridge_id) )
             return false;
     }
 

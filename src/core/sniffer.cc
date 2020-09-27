@@ -27,12 +27,15 @@
 
 #include "detector_manager.h"
 #include "logger.h"
+#include "net_defines.h"
 #include "thread_context.h"
 
-Sniffer::Sniffer(const char* iface_name, SnifferType type, size_t bridge_id)
+Sniffer::Sniffer(const char* iface_name, SnifferType type, size_t bridge_id,
+    std::atomic_ullong& pkt_counter_)
     : iface(iface_name),
       tp(type),
-      id(bridge_id)
+      id(bridge_id),
+      pkt_counter(pkt_counter_)
 {
 
 }
@@ -86,7 +89,9 @@ void Sniffer::dispatch(const struct pcap_pkthdr* frame_hdr, const u_char* frame)
 {
     const unsigned int frame_len = frame_hdr->len;
     
-    if ( DetectorManager::execute(frame, frame_len) )
+    const unsigned long long pkt_num = ++pkt_counter;
+    const PktDirection dir = ( tp == ST_EXT ) ? EXT_TO_INT : INT_TO_EXT;
+    if ( DetectorManager::execute(frame, frame_len, pkt_num, dir, id) )
         dst->accept_pkt(frame, frame_len);
 }
 
