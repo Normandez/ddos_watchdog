@@ -38,7 +38,15 @@
 #	Exit codes:																																							#
 #		0 - all OK																																						#
 #		1 - invalid arguments																																	#
+
 #																																													#
+#
+#
+# Run example:
+#
+#  sudo ./init_vnet.sh external internal ext int 10.8.0.1 10.8.0.2 192.168.2.0/24 192.168.1.0/24 192.168.2.1 192.168.1.1
+#
+#
 ###########################################################################################
 
 # Input arguments checking
