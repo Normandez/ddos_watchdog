@@ -21,40 +21,55 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //------------------------------------------------------------------------------------
-// config.h author Oleksandr Serhiienko <sergienko.9711@gmail.com>
+// ip_flood_analyzer.h author Oleksandr Serhiienko <sergienko.9711@gmail.com>
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef IP_FLOOD_ANALYZER_H
+#define IP_FLOOD_ANALYZER_H
 
-#include <string>
+#include "detector.h"
 
-struct Config
+#include <mutex>
+#include <thread>
+#include <unordered_map>
+#include <vector>
+
+#define ip_flood_analyzer_name "ip_flood_analyzer"
+
+class IpFloodAnalyzer : public Detector
 {
 public:
-    Config() = default;
-    Config(const Config&) = delete;
-    Config& operator=(const Config&) = delete;
+    IpFloodAnalyzer(int time_window, short vector_size, float threshold);
+    ~IpFloodAnalyzer() = default;
 
-    static Config* get_instance()
-    {
-        static Config conf;
-        return &conf;
-    }
+    bool analyze(const u_char* pkt, const unsigned int pkt_len,
+        const unsigned long long pkt_num, const PktDirection dir, const size_t bridge_id) override;
 
-public:
-    bool load_config(const char* file_name);
+private:
+    void insert_ip(uint32_t ip);
+    void clear_dict();
 
-public:
-    std::string int_iface;
-    std::string ext_iface;
-    std::string detectors;
+    void evaluate_entropy();
 
-    // ip_flood_analyzer config
-    int analyse_time_window = 0;    // in seconds
-    short threshold_vector_size = 0;
-    float entropy_threshold = 0.0;
+    void evaluate();
+    void detect_anomaly();
 
+private:
+    // <IP adress, emergence count>
+    using IpDict = std::unordered_map<uint32_t, long long>;
+
+    IpDict ip_dict;
+    std::vector<short> threshold_vec;
+    int analyze_time_window;    // in seconds
+    short threshold_vec_size;
+
+    short vector_pos;
+    long long pkt_count;
+
+    float entropy_threshold;
+
+    std::mutex mtx;
+    std::thread evaluation_thrd;
 };
 
-#endif // CONFIG_H
+#endif // IP_FLOOD_ANALYZER_H
 

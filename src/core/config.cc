@@ -32,6 +32,9 @@
 static const std::string int_iface_conf_key = "INT_IFACE=";
 static const std::string ext_iface_conf_key = "EXT_IFACE=";
 static const std::string detectors_key = "DETECTORS=";
+static const std::string analyse_time_window_key = "ANALYSE_TIME_WINDOW=";
+static const std::string threshold_vector_size_key = "THRESHOLD_VECTOR_SIZE=";
+static const std::string entropy_threshold_key = "ENTROPY_THRESHOLD=";
 
 bool Config::load_config(const char* file_name)
 {
@@ -53,6 +56,12 @@ bool Config::load_config(const char* file_name)
             ext_iface = buf.substr(ext_iface_conf_key.size());
         else if ( buf.find(detectors_key) != std::string::npos )
             detectors = buf.substr(detectors_key.size());
+        else if ( buf.find(analyse_time_window_key) != std::string::npos )
+            analyse_time_window = std::stoi(buf.substr(analyse_time_window_key.size()));
+        else if ( buf.find(threshold_vector_size_key) != std::string::npos )
+            threshold_vector_size = std::stoi(buf.substr(threshold_vector_size_key.size()));
+        else if ( buf.find(entropy_threshold_key) != std::string::npos )
+            entropy_threshold = std::stof(buf.substr(entropy_threshold_key.size()));
     }
 
     file.close();

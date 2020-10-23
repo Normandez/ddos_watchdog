@@ -29,6 +29,7 @@
 
 #include "detectors/detector.h"
 #include "detectors/network_analyzer.h"
+#include "detectors/ip_flood_analyzer.h"
 
 #include "config.h"
 
@@ -41,6 +42,12 @@ void DetectorManager::init_pipeline()
     if ( conf->detectors.find(network_analyzer_name) != std::string::npos )
         s_detectors.push_back(new NetworkAnalyzer);
 
+    if ( conf->detectors.find(ip_flood_analyzer_name) != std::string::npos )
+    {
+        s_detectors.push_back(
+            new IpFloodAnalyzer(
+                conf->analyse_time_window, conf->threshold_vector_size, conf->entropy_threshold));
+    }
 }
 
 void DetectorManager::cleanup_pipeline()
@@ -68,7 +75,11 @@ std::string DetectorManager::get_pipeline_names()
 {
     std::string list_names = " ";
     for ( auto& detector : s_detectors )
-        list_names.append(detector->get_name());
+    {
+        std::string name = detector->get_name();
+        name += " ";
+        list_names.append(name);
+    }
 
     return list_names;
 }
