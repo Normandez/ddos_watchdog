@@ -4,6 +4,8 @@ set ( DETECTORS_SOURCES
     ip_flood_analyzer.h
     network_analyzer.cc
     network_analyzer.h
+    udp_flood_analyzer.cc
+    udp_flood_analyzer.h
 )
 
 add_library ( detectors OBJECT

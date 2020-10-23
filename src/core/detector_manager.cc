@@ -30,6 +30,7 @@
 #include "detectors/detector.h"
 #include "detectors/network_analyzer.h"
 #include "detectors/ip_flood_analyzer.h"
+#include "detectors/udp_flood_analyzer.h"
 
 #include "config.h"
 
@@ -39,15 +40,22 @@ void DetectorManager::init_pipeline()
 {
     Config* conf = Config::get_instance();
 
-    if ( conf->detectors.find(network_analyzer_name) != std::string::npos )
-        s_detectors.push_back(new NetworkAnalyzer);
+    if ( conf->detectors.find(udp_flood_analyzer_name) != std::string::npos )
+    {
+        s_detectors.push_back(
+            new UdpFloodAnalyzer(conf->analyze_time_window_udp, conf->threshold_pkt_num,
+                conf->action_type));
+    }
 
     if ( conf->detectors.find(ip_flood_analyzer_name) != std::string::npos )
     {
         s_detectors.push_back(
             new IpFloodAnalyzer(
-                conf->analyse_time_window, conf->threshold_vector_size, conf->entropy_threshold));
+                conf->analyze_time_window_ip, conf->threshold_vector_size, conf->entropy_threshold));
     }
+
+    if ( conf->detectors.find(network_analyzer_name) != std::string::npos )
+        s_detectors.push_back(new NetworkAnalyzer);
 }
 
 void DetectorManager::cleanup_pipeline()
