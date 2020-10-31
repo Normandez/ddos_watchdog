@@ -125,7 +125,10 @@ void IpFloodAnalyzer::detect_anomaly()
             anomaly_count++;
     }
     if ( anomaly_count == threshold_vec_size )
-        Logger::msg("IP_FLOOD: ANOMALY DETECTED!");
+    {
+        Logger::msg("bridge #%zu(%s): ip_flood_analyzer: ALERT: DDoS condition met",
+            bridge_id, ( dir == EXT_TO_INT ? "ext" : "int" ));
+    }
 }
 
 void IpFloodAnalyzer::evaluate()
