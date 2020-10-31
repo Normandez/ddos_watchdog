@@ -173,12 +173,14 @@ void UdpFloodAnalyzer::action(const uint32_t ip, const uint16_t port)
 
 void UdpFloodAnalyzer::alert(uint32_t ip, const uint16_t port)
 {
-    Logger::msg("UDP_FLOOD: ANOMALY DETECTED, IP %s, PORT %d", inet_ntoa(in_addr({ip})), ntohs(port));
+    Logger::msg("bridge #%zu(%s): udp_flood_analyzer: ALERT: anomaly detected: IP %s, PORT %d",
+        bridge_id, ( dir == EXT_TO_INT ? "ext" : "int" ), inet_ntoa(in_addr({ip})), ntohs(port));
 }
 
 void UdpFloodAnalyzer::block(const uint32_t ip, const uint16_t port)
 {
     blocked_udp.insert(std::make_pair<uint32_t, uint16_t>((uint32_t)ip, (uint16_t)port));
-    Logger::msg("UDP_FLOOD: ANOMALY BLOCKED, IP %s, PORT %d", inet_ntoa(in_addr({ip})), ntohs(port));
+    Logger::msg("bridge #%zu(%s): udp_flood_analyzer: BLOCK: anomaly blocked: IP %s, PORT %d",
+        bridge_id, ( dir == EXT_TO_INT ? "ext" : "int" ), inet_ntoa(in_addr({ip})), ntohs(port));
 }
 
