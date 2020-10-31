@@ -42,7 +42,8 @@ Sniffer::Sniffer(const char* iface_name, SnifferType type, size_t bridge_id,
 
 Sniffer::~Sniffer()
 {
-    pcap_close(handle);
+    if ( handle )
+        pcap_close(handle);
 }
 
 bool Sniffer::open_live()
