@@ -50,9 +50,14 @@ public:
     std::string detectors;
 
     // ip_flood_analyzer config
-    int analyse_time_window = 0;    // in seconds
+    int analyze_time_window_ip = 0;        // in seconds
     short threshold_vector_size = 0;
     float entropy_threshold = 0.0;
+
+    // udp_flood_analyzer config
+    int analyze_time_window_udp = 0;    // in seconds
+    long threshold_pkt_num = 0;
+    std::string action_type = "";       // "alert"|"block"
 
 };
 
