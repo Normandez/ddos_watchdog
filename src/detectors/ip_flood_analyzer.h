@@ -38,11 +38,12 @@
 class IpFloodAnalyzer : public Detector
 {
 public:
-    IpFloodAnalyzer(int time_window, short vector_size, float threshold);
+    IpFloodAnalyzer(const size_t bridge_id, const PktDirection dir,
+        int time_window, short vector_size, float threshold);
     ~IpFloodAnalyzer() = default;
 
     bool analyze(const u_char* pkt, const unsigned int pkt_len,
-        const unsigned long long pkt_num, const PktDirection dir, const size_t bridge_id) override;
+        const unsigned long long pkt_num) override;
 
 private:
     void insert_ip(uint32_t ip);

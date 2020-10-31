@@ -36,26 +36,26 @@
 
 thread_local std::list<Detector*> s_detectors;
 
-void DetectorManager::init_pipeline()
+void DetectorManager::init_pipeline(const size_t bridge_id, const PktDirection dir)
 {
     Config* conf = Config::get_instance();
 
     if ( conf->detectors.find(udp_flood_analyzer_name) != std::string::npos )
     {
         s_detectors.push_back(
-            new UdpFloodAnalyzer(conf->analyze_time_window_udp, conf->threshold_pkt_num,
-                conf->action_type));
+            new UdpFloodAnalyzer(bridge_id, dir, conf->analyze_time_window_udp,
+                conf->threshold_pkt_num, conf->action_type));
     }
 
     if ( conf->detectors.find(ip_flood_analyzer_name) != std::string::npos )
     {
         s_detectors.push_back(
-            new IpFloodAnalyzer(
-                conf->analyze_time_window_ip, conf->threshold_vector_size, conf->entropy_threshold));
+            new IpFloodAnalyzer(bridge_id, dir, conf->analyze_time_window_ip,
+                conf->threshold_vector_size, conf->entropy_threshold));
     }
 
     if ( conf->detectors.find(network_analyzer_name) != std::string::npos )
-        s_detectors.push_back(new NetworkAnalyzer);
+        s_detectors.push_back(new NetworkAnalyzer(bridge_id, dir));
 }
 
 void DetectorManager::cleanup_pipeline()
@@ -65,11 +65,11 @@ void DetectorManager::cleanup_pipeline()
 }
 
 bool DetectorManager::execute(const u_char* pkt, const unsigned int pkt_len,
-    const unsigned long long pkt_num, const PktDirection dir, const size_t bridge_id)
+    const unsigned long long pkt_num)
 {
     for ( auto& detector : s_detectors )
     {
-        if ( !detector->analyze(pkt, pkt_len, pkt_num, dir, bridge_id) )
+        if ( !detector->analyze(pkt, pkt_len, pkt_num) )
             return false;
     }
 

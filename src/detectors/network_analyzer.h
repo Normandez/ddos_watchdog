@@ -33,11 +33,13 @@
 class NetworkAnalyzer : public Detector
 {
 public:
-    NetworkAnalyzer() : Detector(network_analyzer_name) { }
+    NetworkAnalyzer(const size_t bridge_id, const PktDirection dir)
+        : Detector(network_analyzer_name, bridge_id, dir)
+    { }
     ~NetworkAnalyzer() = default;
 
     bool analyze(const u_char* pkt, const unsigned int pkt_len,
-        const unsigned long long pkt_num, const PktDirection dir, const size_t bridge_id) override;
+        const unsigned long long pkt_num) override;
 
 };
 

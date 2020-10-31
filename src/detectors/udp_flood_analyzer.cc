@@ -36,9 +36,9 @@
 #define DEFAULT_THRESHOLD_PKT_NUM 30
 #define DEFAULT_ACTION_TYPE UdpFloodAnalyzer::ActionType::ALERT
 
-UdpFloodAnalyzer::UdpFloodAnalyzer(const int time_window, const long threshold,
-    const std::string& _action_type)
-    : Detector(udp_flood_analyzer_name),
+UdpFloodAnalyzer::UdpFloodAnalyzer(const size_t bridge_id, const PktDirection dir,
+    const int time_window, const long threshold, const std::string& _action_type)
+    : Detector(udp_flood_analyzer_name, bridge_id, dir),
       analyze_time_window(( time_window > 0 ) ? time_window : DEFAULT_TIME_WINDOW),
       threshold_pkt_num(( threshold > 0 ) ? threshold : DEFAULT_THRESHOLD_PKT_NUM),
       evaluation_thrd(&UdpFloodAnalyzer::evaluate, this)
@@ -53,8 +53,7 @@ UdpFloodAnalyzer::UdpFloodAnalyzer(const int time_window, const long threshold,
     evaluation_thrd.detach();
 }
 
-bool UdpFloodAnalyzer::analyze(const u_char* pkt, const unsigned int,
-    const unsigned long long, const PktDirection, const size_t)
+bool UdpFloodAnalyzer::analyze(const u_char* pkt, const unsigned int, const unsigned long long)
 {
     const ether_header* ethr_frame = (const ether_header*)pkt;
     uint16_t eth_type = ntohs(ethr_frame->ether_type);

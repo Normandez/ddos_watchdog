@@ -72,7 +72,8 @@ public:
 
 void ExtToInt::live()
 {
-    DetectorManager::init_pipeline();
+    const PktDirection dir = ( ext_sniffer->get_type() == ST_EXT ) ? EXT_TO_INT : INT_TO_EXT;
+    DetectorManager::init_pipeline(id, dir);
     Logger::msg("Detectors initialized: bridge #%zu(ext->int): count %zu:%s", id,
         DetectorManager::get_pipeline_len(), DetectorManager::get_pipeline_names().c_str());
 

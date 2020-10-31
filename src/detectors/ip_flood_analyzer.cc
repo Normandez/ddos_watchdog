@@ -41,8 +41,9 @@
 #define THRESHOLD_LOW_BORDER -1
 #define THRESHOLD_TOP_BORDER 1
 
-IpFloodAnalyzer::IpFloodAnalyzer(int time_window, short vector_size, float threshold)
-    : Detector(ip_flood_analyzer_name),
+IpFloodAnalyzer::IpFloodAnalyzer(const size_t bridge_id, const PktDirection dir,
+    int time_window, short vector_size, float threshold)
+    : Detector(ip_flood_analyzer_name, bridge_id, dir),
       vector_pos(START_VECTOR_POS),
       pkt_count(0),
       evaluation_thrd(&IpFloodAnalyzer::evaluate, this)
@@ -57,8 +58,7 @@ IpFloodAnalyzer::IpFloodAnalyzer(int time_window, short vector_size, float thres
     evaluation_thrd.detach();
 }
 
-bool IpFloodAnalyzer::analyze(const u_char* pkt, const unsigned int,
-    const unsigned long long, const PktDirection, const size_t)
+bool IpFloodAnalyzer::analyze(const u_char* pkt, const unsigned int, const unsigned long long)
 {
     const ether_header* ethr_frame = (const ether_header*)pkt;
     uint16_t eth_type = ntohs(ethr_frame->ether_type);

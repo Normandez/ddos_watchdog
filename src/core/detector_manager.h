@@ -34,11 +34,11 @@
 class DetectorManager
 {
 public:
-    static void init_pipeline();
+    static void init_pipeline(const size_t bridge_id, const PktDirection dir);
     static void cleanup_pipeline();
 
     static bool execute(const u_char* pkt, const unsigned int pkt_len,
-        const unsigned long long pkt_num, const PktDirection dir, const size_t bridge_id);
+        const unsigned long long pkt_num);
 
     static size_t get_pipeline_len();
     static std::string get_pipeline_names();

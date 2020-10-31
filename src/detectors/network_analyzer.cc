@@ -231,7 +231,7 @@ static void print_ip(const ip* pkt, const std::string& prefix_log)
 }
 
 bool NetworkAnalyzer::analyze(const u_char* pkt, const unsigned int,
-    const unsigned long long pkt_num, const PktDirection dir, const size_t bridge_id)
+    const unsigned long long pkt_num)
 {
     std::string prefix_log = "bridge #" + std::to_string(bridge_id);
     prefix_log += ( dir == EXT_TO_INT ) ? "(ext)" : "(int)";
