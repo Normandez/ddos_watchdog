@@ -46,6 +46,9 @@ public:
     void set_dst(Sniffer* s)
     { dst = s; }
 
+    SnifferType get_type() const
+    { return tp; }
+
     bool open_live();
     void sniff();
 

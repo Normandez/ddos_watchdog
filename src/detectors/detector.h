@@ -33,17 +33,23 @@
 class Detector
 {
 public:
-    Detector(const char* n) : name(n) { }
+    Detector(const char* name, const size_t bridge_id, const PktDirection dir)
+        : name(name),
+          bridge_id(bridge_id),
+          dir(dir)
+    { }
     virtual ~Detector() = default;
 
     virtual bool analyze(const u_char* pkt, const unsigned int pkt_len,
-        const unsigned long long pkt_num, const PktDirection dir, const size_t bridge_id) = 0;
+        const unsigned long long pkt_num) = 0;
 
     const char* get_name() const
     { return name; }
 
-private:
+protected:
     const char* name;
+    const size_t bridge_id;
+    const PktDirection dir;
 
 };
 

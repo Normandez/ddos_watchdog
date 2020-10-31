@@ -44,11 +44,12 @@ public:
     };
 
 public:
-    UdpFloodAnalyzer(const int time_window, const long threshold, const std::string& action_type);
+    UdpFloodAnalyzer(const size_t bridge_id, const PktDirection dir,
+        const int time_window, const long threshold, const std::string& action_type);
     ~UdpFloodAnalyzer() = default;
 
     bool analyze(const u_char* pkt, const unsigned int pkt_len,
-        const unsigned long long pkt_num, const PktDirection dir, const size_t bridge_id) override;
+        const unsigned long long pkt_num) override;
 
 private:
     bool is_blocked(const uint32_t ip, const uint16_t port);
