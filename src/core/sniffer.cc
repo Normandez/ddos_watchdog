@@ -89,7 +89,6 @@ void Sniffer::sniff()
 void Sniffer::dispatch(const struct pcap_pkthdr* frame_hdr, const u_char* frame)
 {
     const unsigned int frame_len = frame_hdr->len;
-    
     const unsigned long long pkt_num = ++pkt_counter;
     if ( DetectorManager::execute(frame, frame_len, pkt_num) )
         dst->accept_pkt(frame, frame_len);

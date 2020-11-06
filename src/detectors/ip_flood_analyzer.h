@@ -60,13 +60,14 @@ private:
 
     IpDict ip_dict;
     std::vector<short> threshold_vec;
-    int analyze_time_window;    // in seconds
-    short threshold_vec_size;
+    const int analyze_time_window;    // in seconds
+    const short threshold_vec_size;
 
     short vector_pos;
     long long pkt_count;
+    bool is_traffic;
 
-    float entropy_threshold;
+    const float entropy_threshold;
 
     std::mutex mtx;
     std::thread evaluation_thrd;

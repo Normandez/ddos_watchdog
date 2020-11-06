@@ -102,7 +102,8 @@ void IntToExt::live()
 // Live bridge
 
 LiveBridge::LiveBridge(const char* ext_iface, const char* int_iface, int bridge_id)
-    : id(bridge_id)
+    : id(bridge_id),
+      pkt_counter(0)
 {
     ext_to_int = new ExtToInt(ext_iface, int_iface, bridge_id, pkt_counter);
     int_to_ext = new IntToExt(ext_iface, int_iface, bridge_id, pkt_counter);

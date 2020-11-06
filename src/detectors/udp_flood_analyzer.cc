@@ -39,8 +39,8 @@
 UdpFloodAnalyzer::UdpFloodAnalyzer(const size_t bridge_id, const PktDirection dir,
     const int time_window, const long threshold, const std::string& _action_type)
     : Detector(udp_flood_analyzer_name, bridge_id, dir),
-      analyze_time_window(( time_window > 0 ) ? time_window : DEFAULT_TIME_WINDOW),
       threshold_pkt_num(( threshold > 0 ) ? threshold : DEFAULT_THRESHOLD_PKT_NUM),
+      analyze_time_window(( time_window > 0 ) ? time_window : DEFAULT_TIME_WINDOW),
       evaluation_thrd(&UdpFloodAnalyzer::evaluate, this)
 {
     if ( _action_type == "alert" )
@@ -81,13 +81,20 @@ bool UdpFloodAnalyzer::analyze(const u_char* pkt, const unsigned int, const unsi
 
 bool UdpFloodAnalyzer::is_blocked(const uint32_t ip, const uint16_t port)
 {
+    if ( !mtx_blocked_list.try_lock() )
+        return false;
+
     const auto& it_pair = blocked_udp.equal_range(ip);
     for ( auto it = it_pair.first; it != it_pair.second; it++ )
     {
         if ( it->second == port )
+        {
+            mtx_blocked_list.unlock();
             return true;
+        }
     }
 
+    mtx_blocked_list.unlock();
     return false;
 }
 
@@ -95,7 +102,7 @@ void UdpFloodAnalyzer::insert_udp(const uint32_t ip, const uint16_t port, const 
 {
     bool is_same_checksum = false;
 
-    if ( !mtx.try_lock() )
+    if ( !mtx_flow.try_lock() )
         return;
 
     // Insert and analyze checksum
@@ -125,14 +132,7 @@ void UdpFloodAnalyzer::insert_udp(const uint32_t ip, const uint16_t port, const 
             udp_flow_dict[ip][port] = 1;
     }
 
-    mtx.unlock();
-}
-
-void UdpFloodAnalyzer::clear_dict()
-{
-    std::lock_guard<std::mutex> lock(mtx);
-    udp_flow_dict.clear();
-    checksum_dict.clear();
+    mtx_flow.unlock();
 }
 
 void UdpFloodAnalyzer::evaluate()
@@ -145,9 +145,19 @@ void UdpFloodAnalyzer::evaluate()
     }
 }
 
+void UdpFloodAnalyzer::clear_dict()
+{
+    std::lock_guard<std::mutex> lock(mtx_flow);
+    udp_flow_dict.clear();
+    checksum_dict.clear();
+}
+
 void UdpFloodAnalyzer::detect_anomaly()
 {
+    mtx_flow.lock();
     UdpFlowDict udp_dict = udp_flow_dict;
+    mtx_flow.unlock();
+
     for ( const auto& flow : udp_dict )
     {
         for ( const auto& port : flow.second )
@@ -179,7 +189,10 @@ void UdpFloodAnalyzer::alert(uint32_t ip, const uint16_t port)
 
 void UdpFloodAnalyzer::block(const uint32_t ip, const uint16_t port)
 {
+    mtx_blocked_list.lock();
     blocked_udp.insert(std::make_pair<uint32_t, uint16_t>((uint32_t)ip, (uint16_t)port));
+    mtx_blocked_list.unlock();
+
     Logger::msg("bridge #%zu(%s): udp_flood_analyzer: BLOCK: anomaly blocked: IP %s, PORT %d",
         bridge_id, ( dir == EXT_TO_INT ? "ext" : "int" ), inet_ntoa(in_addr({ip})), ntohs(port));
 }

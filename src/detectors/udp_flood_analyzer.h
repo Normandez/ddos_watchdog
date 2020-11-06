@@ -74,11 +74,11 @@ private:
     UdpFlowDict udp_flow_dict;
     UdpCheckSumDict checksum_dict;
     UdpBlockedMap blocked_udp;
-    const long threshold_pkt_num;
+    const unsigned long threshold_pkt_num;
     const int analyze_time_window;    // in seconds
     ActionType action_type;
 
-    std::mutex mtx;
+    std::mutex mtx_flow, mtx_blocked_list;
     std::thread evaluation_thrd;
 };
 
