@@ -7,7 +7,10 @@ Usage: $0 [OPTION]...
         --prefix=     DDoS Watchdog installation prefix
 
 Optional Features:
-    --enable-debug          enable debugging options
+    --enable-debug           enable debugging options
+    --enable-warnings-all    enable all compiler warnings
+    --enable-asan            enable address sanitizer
+    --enable-tsan            enable thread sanitizer
 "
 
 sourcedir="$( cd "$( dirname "$0" )" && pwd )"
@@ -44,6 +47,15 @@ while [ $# -ne 0 ]; do
             ;;
         --enable-debug)
             append_cache_entry CMAKE_BUILD_TYPE STRING Debug
+            ;;
+        --enable-warnings-all)
+            append_cache_entry CMAKE_CXX_FLAGS STRING -Wall
+            ;;
+        --enable-asan)
+            append_cache_entry CMAKE_CXX_FLAGS STRING -fsanitize=address
+            ;;
+        --enable-tsan)
+            append_cache_entry CMAKE_CXX_FLAGS STRING -fsanitize=thread
             ;;
         *)
             echo "Invalid option '$1'.  Try $0 --help to see available options."

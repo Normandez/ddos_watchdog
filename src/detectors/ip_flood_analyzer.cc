@@ -44,19 +44,14 @@
 IpFloodAnalyzer::IpFloodAnalyzer(const size_t bridge_id, const PktDirection dir,
     int time_window, short vector_size, float threshold)
     : Detector(ip_flood_analyzer_name, bridge_id, dir),
+      analyze_time_window(( time_window > 0 ) ? time_window : DEFAULT_TIME_WINDOW),
+      threshold_vec_size(( vector_size > 0 ) ? vector_size : DEFAULT_THRESHOLD_VECTOR_SIZE),
       vector_pos(START_VECTOR_POS),
       pkt_count(0),
+      is_traffic(false),
+      entropy_threshold(( threshold > 0.0 ) ? threshold : DEFAULT_ENTROPY_THRESHOLD),
       evaluation_thrd(&IpFloodAnalyzer::evaluate, this)
-{
-    analyze_time_window = ( time_window > 0 ) ? time_window : DEFAULT_TIME_WINDOW;
-    threshold_vec_size = ( vector_size > 0 ) ? vector_size : DEFAULT_THRESHOLD_VECTOR_SIZE;
-    entropy_threshold = ( threshold > 0.0 ) ? threshold : DEFAULT_ENTROPY_THRESHOLD;
-
-    threshold_vec.reserve(threshold_vec_size);
-    threshold_vec.assign(threshold_vec_size, THRESHOLD_LOW_BORDER);
-
-    evaluation_thrd.detach();
-}
+{ evaluation_thrd.detach(); }
 
 bool IpFloodAnalyzer::analyze(const u_char* pkt, const unsigned int, const unsigned long long)
 {
@@ -74,15 +69,36 @@ bool IpFloodAnalyzer::analyze(const u_char* pkt, const unsigned int, const unsig
 
 void IpFloodAnalyzer::insert_ip(uint32_t ip)
 {
-    if ( mtx.try_lock() )
-    {
-        pkt_count++;
-        if ( ip_dict.count(ip) != 0 )
-            ip_dict[ip]++;
-        else
-            ip_dict[ip] = 1;
+    if ( !mtx.try_lock() )
+        return;
 
-        mtx.unlock();
+    pkt_count++;
+    if ( ip_dict.count(ip) != 0 )
+        ip_dict[ip]++;
+    else
+        ip_dict[ip] = 1;
+
+    mtx.unlock();
+}
+
+void IpFloodAnalyzer::evaluate()
+{
+    threshold_vec.reserve(threshold_vec_size);
+    threshold_vec.assign(threshold_vec_size, THRESHOLD_LOW_BORDER);
+    while ( true )
+    {
+        while ( vector_pos < threshold_vec_size )
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(analyze_time_window));
+
+            evaluate_entropy();
+            clear_dict();
+
+            vector_pos++;
+        }
+
+        detect_anomaly();
+        vector_pos = START_VECTOR_POS;
     }
 }
 
@@ -95,11 +111,18 @@ void IpFloodAnalyzer::clear_dict()
 
 void IpFloodAnalyzer::evaluate_entropy()
 {
+    mtx.lock();
     long long total_count = pkt_count;
     IpDict dict = ip_dict;
+    mtx.unlock();
 
     if ( total_count == 0 )
+    {
+        is_traffic = false;
         return;
+    }
+    else
+        is_traffic = true;
 
     float entropy = 0.0;
     for ( const auto& ip : dict )
@@ -118,6 +141,9 @@ void IpFloodAnalyzer::evaluate_entropy()
 
 void IpFloodAnalyzer::detect_anomaly()
 {
+    if ( !is_traffic )
+        return;
+
     short anomaly_count = 0;
     for ( auto& v : threshold_vec )
     {
@@ -128,25 +154,6 @@ void IpFloodAnalyzer::detect_anomaly()
     {
         Logger::msg("bridge #%zu(%s): ip_flood_analyzer: ALERT: DDoS condition met",
             bridge_id, ( dir == EXT_TO_INT ? "ext" : "int" ));
-    }
-}
-
-void IpFloodAnalyzer::evaluate()
-{
-    while ( true )
-    {
-        while ( vector_pos < threshold_vec_size )
-        {
-            std::this_thread::sleep_for(std::chrono::seconds(analyze_time_window));
-
-            evaluate_entropy();
-            clear_dict();
-
-            vector_pos++;
-        }
-
-        detect_anomaly();
-        vector_pos = START_VECTOR_POS;
     }
 }
 
