@@ -49,6 +49,9 @@ public:
     std::string ext_iface;
     std::string detectors;
 
+    // network_analyzer config
+    int max_print_threads = 0;
+
     // ip_flood_analyzer config
     int analyze_time_window_ip = 0;        // in seconds
     short threshold_vector_size = 0;

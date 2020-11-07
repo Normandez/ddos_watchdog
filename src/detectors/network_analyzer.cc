@@ -25,9 +25,11 @@
 
 #include "network_analyzer.h"
 
+#include <cstring>
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <thread>
 
 #include <arpa/inet.h>
 #include <netinet/ether.h>
@@ -38,6 +40,8 @@
 
 #include "core/logger.h"
 #include "core/net_defines.h"
+
+#define DEFAULT_MAX_THREADS 1000
 
 static void print_arp(const ether_arp* pkt, const std::string& prefix_log)
 {
@@ -230,8 +234,30 @@ static void print_ip(const ip* pkt, const std::string& prefix_log)
     }
 }
 
-bool NetworkAnalyzer::analyze(const u_char* pkt, const unsigned int,
+NetworkAnalyzer::NetworkAnalyzer(const size_t bridge_id, const PktDirection dir,
+    const int max_threads)
+    : Detector(network_analyzer_name, bridge_id, dir),
+      max_threads((max_threads > 0) ? max_threads : DEFAULT_MAX_THREADS),
+      num_threads(0)
+{ }
+
+bool NetworkAnalyzer::analyze(const u_char* pkt, const unsigned int pkt_len,
     const unsigned long long pkt_num)
+{
+    // Print in a separate thread, num of active threads is limited
+    if ( num_threads < max_threads )
+    {
+        num_threads++;
+        u_char* buf_pkt = new u_char[pkt_len];
+        memcpy((u_char*)buf_pkt, (const u_char*)pkt, pkt_len);
+        std::thread print_thrd(&NetworkAnalyzer::print, this, buf_pkt, pkt_num);
+        print_thrd.detach();
+    }
+
+    return true;
+}
+
+void NetworkAnalyzer::print(const u_char* pkt, const unsigned long long pkt_num)
 {
     std::string prefix_log = "bridge #" + std::to_string(bridge_id);
     prefix_log += ( dir == EXT_TO_INT ) ? "(ext)" : "(int)";
@@ -256,6 +282,7 @@ bool NetworkAnalyzer::analyze(const u_char* pkt, const unsigned int,
     }
     }
 
-    return true;
+    delete[] pkt;
+    num_threads--;
 }
 

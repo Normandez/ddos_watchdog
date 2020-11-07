@@ -55,7 +55,7 @@ void DetectorManager::init_pipeline(const size_t bridge_id, const PktDirection d
     }
 
     if ( conf->detectors.find(network_analyzer_name) != std::string::npos )
-        s_detectors.push_back(new NetworkAnalyzer(bridge_id, dir));
+        s_detectors.push_back(new NetworkAnalyzer(bridge_id, dir, conf->max_print_threads));
 }
 
 void DetectorManager::cleanup_pipeline()

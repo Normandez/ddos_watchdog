@@ -34,6 +34,9 @@ static const std::string int_iface_conf_key = "INT_IFACE=";
 static const std::string ext_iface_conf_key = "EXT_IFACE=";
 static const std::string detectors_key = "DETECTORS=";
 
+// NetworkAnalyzer config
+static const std::string max_print_threads_key = "MAX_PRINT_THREADS=";
+
 // IpFloodAnalyzer config
 static const std::string analyze_time_window_ip_key = "ANALYZE_TIME_WINDOW_IP=";
 static const std::string threshold_vector_size_key = "THRESHOLD_VECTOR_SIZE=";
@@ -64,6 +67,8 @@ bool Config::load_config(const char* file_name)
             ext_iface = buf.substr(ext_iface_conf_key.size());
         else if ( buf.find(detectors_key) != std::string::npos )
             detectors = buf.substr(detectors_key.size());
+        else if ( buf.find(max_print_threads_key) != std::string::npos )
+            max_print_threads = std::stoi(buf.substr(max_print_threads_key.size()));
         else if ( buf.find(analyze_time_window_ip_key) != std::string::npos )
             analyze_time_window_ip = std::stoi(buf.substr(analyze_time_window_ip_key.size()));
         else if ( buf.find(threshold_vector_size_key) != std::string::npos )
