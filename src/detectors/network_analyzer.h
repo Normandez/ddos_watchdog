@@ -28,18 +28,26 @@
 
 #include "detector.h"
 
+#include <atomic>
+
 #define network_analyzer_name "network_analyzer"
 
 class NetworkAnalyzer : public Detector
 {
 public:
-    NetworkAnalyzer(const size_t bridge_id, const PktDirection dir)
-        : Detector(network_analyzer_name, bridge_id, dir)
-    { }
+    NetworkAnalyzer(const size_t bridge_id, const PktDirection dir,
+        const int max_threads);
     ~NetworkAnalyzer() = default;
 
     bool analyze(const u_char* pkt, const unsigned int pkt_len,
         const unsigned long long pkt_num) override;
+
+private:
+    void print(const u_char* pkt, const unsigned long long pkt_num);
+
+private:
+    const int max_threads;
+    std::atomic_ulong num_threads;
 
 };
 
